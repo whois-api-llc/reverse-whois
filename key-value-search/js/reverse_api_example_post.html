@@ -1,0 +1,40 @@
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script type="text/javascript">
+    //     Fill in your details
+    var username = "Your_reverse_whois_api_username";
+    var password = "Your_reverse_whois_api_password";
+
+    window.addEventListener("load", onPageLoad, false);
+
+    var post_data ='{                       \
+        "terms":[                           \
+            {                               \
+                "section":"Admin",          \
+                "attribute":"name",         \
+                "value":"Brett Branch",     \
+                "exclude":"false"           \
+            },                              \
+            {                               \
+                "section":"General",        \
+                "attribute":"DomainName",   \
+                "value":".com",             \
+                "exclude":"false",          \
+                "matchType":"EndsWith"      \
+            }],                             \
+        "recordsCounter":false,             \
+        "outputFormat":"json",              \
+        "username": "' + username + '",     \
+        "password": "' + password + '",     \
+        "rows":100                          \
+    }';
+
+    function onPageLoad() {
+        $.post(
+            "https://www.whoisxmlapi.com/reverse-whois-api/search.php",
+            post_data,
+            function(data) {
+                $("body").append("<pre>"+ JSON.stringify(data,"",2)+"</pre>");
+            }
+        );
+    }
+</script>
