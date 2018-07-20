@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.whoisxmlapi</groupId>
-    <artifactId>ReverseWhoisApiSample</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <artifactId>reverse-whois-sample-key-value</artifactId>
+    <version>1.0</version>
 
     <dependencies>
         <dependency>
@@ -36,10 +36,6 @@
                 </executions>
                 <configuration>
                     <mainClass>ReverseWhoisApiSample</mainClass>
-                    <arguments>
-                    </arguments>
-                    <systemProperties>
-                    </systemProperties>
                 </configuration>
             </plugin>
         </plugins>

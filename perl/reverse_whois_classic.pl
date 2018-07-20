@@ -1,26 +1,46 @@
 #!/usr/bin/perl
 
-use LWP::Simple;                # From CPAN, also install LWP::Protocol::Https
-use JSON qw( decode_json );     # From CPAN
-use Data::Dumper;               # Perl core module
-use strict;                     # Good practice
-use warnings;                   # Good practice
+use LWP::Protocol::https;         # From CPAN
+use LWP::Simple;                  # From CPAN
+use URI::Escape qw( uri_escape ); # From CPAN
 
-my $base_url = "https://www.whoisxmlapi.com/reverse-whois-api/search.php";
-my $mode = "preview";
-my $term = "wikimedia";
-my $user_name = "Your_reverse_whois_api_username";
-my $password = "Your_reverse_whois_api_password";
+use strict;
+use warnings;
 
-print "JSON\n---\n".getDnsData("json");
+my $base_url = 'https://www.whoisxmlapi.com/reverse-whois-api/search.php';
+my $term1 = 'whois';
+my $exclude_term1 = 'domain';
+my $exclude_term2 = 'news';
+my $username = 'Your reverse whois api username';
+my $password = 'Your reverse whois api password';
 
-sub getDnsData {
+#######################
+# Use a JSON resource #
+#######################
+print "JSON\n---\n" . getData('json') . "\n\n";
+
+#######################
+# Use an XML resource #
+#######################
+print "XML\n---\n" . getData('xml');
+
+#######################
+# Getting the Data    #
+#######################
+sub getData {
     my $format = $_[0];
-    my $url = "$base_url?mode=$mode&term1=$term"
-        . "&outputFormat=$format&username=$user_name"
-        . "&password=$password";
+    my $url = $base_url
+            . '?username=' . uri_escape($username)
+            . '&password=' . uri_escape($password)
+            . '&term1=' . uri_escape($term1)
+            . '&exclude_term1=' . uri_escape($exclude_term1)
+            . '&exclude_term2=' . uri_escape($exclude_term2)
+            . '&output_format=' . uri_escape($format);
 
+    print "Get data by URL: $url\n";
+    # 'get' is exported by LWP::Simple;
     my $object = get($url);
+
     die "Could not get $base_url!" unless defined $object;
     return $object
 }

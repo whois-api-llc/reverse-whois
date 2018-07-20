@@ -1,38 +1,41 @@
 <?php
 
-$user = 'Your_reverse_whois_api_username';
-$password = 'Your_reverse_whois_api_password';
+$user = 'Your reverse whois api username';
+$password = 'Your reverse whois api password';
 
 $header = "Content-Type: application/json\r\nAccept: application/json\r\n";
+$url = 'https://www.whoisxmlapi.com/reverse-whois-api/search.php';
 
 $options = array('http' => array(
     'method' => 'POST',
-    'header' => $header
-));
-
-$url = 'https://www.whoisxmlapi.com/reverse-whois-api/search.php';
-
-$options['http']['content'] = json_encode(array(
-    'terms'=>array(
+    'header' => $header,
+    'content' => json_encode(
         array(
-            'section' => 'Admin',
-            'attribute' => 'name',
-            'value' => 'Brett Branch',
-            'exclude' => false
-        ),
-        array(
-            'section' => 'General',
-            'attribute' => 'DomainName',
-            'value' => '.com',
-            'exclude' => 'false',
-            'matchType' => 'EndsWith'
+            'terms' => array(
+                array(
+                    'section' => 'Registrant',
+                    'attribute' => 'Email',
+                    'value' => 'a',
+                    'exclude' => false,
+                    'matchType' => 'BeginsWith'
+                ),
+                array(
+                    'section' => 'General',
+                    'attribute' => 'DomainName',
+                    'value' => '.com',
+                    'exclude' => 'false',
+                    'matchType' => 'EndsWith'
+                )
+            ),
+            'recordsCounter' => false,
+            'mode' => 'purchase',
+            'rows' => 10,
+            'username' => $user,
+            'password' => $password
         )
-    ),
-    'recordsCounter' => false,
-    'username' => $user,
-    'password' => $password,
-    'outputFormat' => 'json',
-    'rows' => '100'
+    )
 ));
 
-print(file_get_contents($url, false, stream_context_create($options)));
+$response = file_get_contents($url,false,stream_context_create($options));
+print_r(json_decode($response));
+print(PHP_EOL);

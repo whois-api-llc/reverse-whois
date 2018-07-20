@@ -2,33 +2,34 @@
 # Fill in your details #
 ########################
 
-$username = "Your_reverse_whois_api_username"
-$password = "Your_reverse_whois_api_password"
+$username = 'Your reverse whois api username'
+$password = 'Your reverse whois api password'
 
 #######################
 # Use a JSON resource #
 #######################
 
 $postParams = @{
-        terms = @(
-            @{
-                section ="Admin"
-                attribute = "name"
-                value = "Brett Branch"
-                exclude = "false"
-            }
-        )
-        recordsCounter = "false"
-        username = $username
-        password = $password
-        output_format = "json"
-    } | ConvertTo-Json
+    terms = @(
+        @{
+            section = 'Admin'
+            attribute = 'name'
+            value = 'john'
+            matchType = 'anywhere'
+            exclude = 'false'
+        }
+    )
+    recordsCounter = 'false'
+    username = $username
+    password = $password
+    outputFormat = 'json'
+    rows = 10
+    mode = 'purchase'
+} | ConvertTo-Json
 
 $uri = 'https://www.whoisxmlapi.com/reverse-whois-api/search.php'
 
-$response = Invoke-WebRequest -Uri $uri -Method POST -Body $postParams -ContentType "application/json"
+$response = Invoke-WebRequest -Uri $uri -Method POST -Body $postParams `
+            -ContentType 'application/json'
 
 echo $response.content | convertfrom-json | convertto-json -depth 10
-
-
-

@@ -1,59 +1,60 @@
 require 'json'
-require 'yaml'		# only needed to print the returned result in a very pretty way
-require 'uri'
+require 'net/https'
 require 'openssl'
-require "net/https"
+require 'uri'
+require 'yaml' # only needed to print the returned result in a very pretty way
 
 ########################
 # Fill in your details #
 ########################
-username = "Your_reverse_whois_api_username"
-password = "Your_reverse_whois_api_password"
+username = 'Your reverse whois api username'
+password = 'Your reverse whois api password'
 
 #######################
 # Use a JSON resource #
 #######################
-format = "JSON"
+format = 'json'
 url = 'https://www.whoisxmlapi.com/reverse-whois-api/search.php'
 
 content = {
-    "terms" => [
-        {
-        section: "Registrant",
-        attribute: "Name",
-        matchType: "BeginsWith",
-        value: "Mark",
-        exclude:"true"
-        },
-        {
-        section: "Technical",
-        attribute: "Country",
-        matchType: "Anywhere",
-        value: "US",
-        exclude:"true"
-        }
-    ],
-    recordsCounter: "false",
-    username: username,
-    password: password ,
-    output_format: format,
+  terms: [
+    {
+      section: 'Registrant',
+      attribute: 'Name',
+      matchType: 'BeginsWith',
+      value: 'Mark',
+      exclude: false
+    },
+    {
+      section: 'Technical',
+      attribute: 'Country',
+      matchType: 'Anywhere',
+      value: 'US',
+      exclude: true
+    }
+  ],
+  mode: 'preview',
+  recordsCounter: false,
+  username: username,
+  password: password,
+  outputFormat: format
 }
 
 uri = URI.parse(url)
 http = Net::HTTP.new(uri.host, uri.port)
 
-# connect using ssl
+# Connect using ssl
 http.use_ssl = true
 http.verify_mode = OpenSSL::SSL::VERIFY_NONE
 request = Net::HTTP::Post.new(uri.request_uri)
 
-# set headers
+# Set headers
 request.add_field('Content-Type', 'application/json')
-request.add_field("Accept", "application/json")
+request.add_field('Accept', 'application/json')
 request.body = content.to_json
 
-# get response
+# Get response
 response = http.request(request)
 
-# print pretty parsed json
+# Print parsed json
 puts JSON.parse(response.body).to_yaml

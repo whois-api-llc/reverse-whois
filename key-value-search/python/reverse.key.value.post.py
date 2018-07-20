@@ -1,20 +1,50 @@
-try: 
+try:
     import http.client as http
-except:
+except ImportError:
     import httplib as http
 
-password = 'Your_reverse_whois_api_password'
-username = 'Your_reverse_whois_api_username'
+import json
 
-payload = '{ "terms": [{ "section": "Registrant", "attribute": "Email",\
-                         "value": "a@b.com", "exclude": false }],\
-             "recordsCounter": false, "username": "USER", "password": "PASS"\
-           }'.replace('USER', username).replace('PASS', password)
+username = 'Your reverse whois api username'
+password = 'Your reverse whois api password'
 
-headers = {"Content-Type": "application/json", "Accept": "application/json"}
+payload = {
+    'terms': [
+        {
+            'section': 'Admin',
+            'attribute': 'name',
+            'value': 'whois',
+            'matchType': 'anywhere',
+            'exclude': False
+        }
+    ],
+    'recordsCounter': False,
+    'username': username,
+    'password': password,
+    'outputFormat': 'json',
+    'mode': 'purchase',
+    'rows': 10
+}
+
+
+def print_response(txt):
+    response_json = json.loads(txt)
+    print(json.dumps(response_json, indent=4, sort_keys=True))
+
+
+headers = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+}
+
 conn = http.HTTPSConnection('www.whoisxmlapi.com')
-conn.request("POST", '/reverse-whois-api/search.php', payload, headers)
+
+conn.request('POST',
+             '/reverse-whois-api/search.php',
+             json.dumps(payload),
+             headers)
 
 response = conn.getresponse()
-text = response.read()
-print(text)
+text = response.read().decode('utf8')
+
+print_response(text)

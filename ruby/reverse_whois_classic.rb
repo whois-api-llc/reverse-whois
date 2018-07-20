@@ -1,20 +1,32 @@
-require 'open-uri'
+require 'erb'
 require 'json'
+require 'net/https'
+require 'uri'
+require 'yaml' # only needed to print the returned result in a very pretty way
 
-username = 'your_reverse_whois_api_username'
-password = 'your_reverse_whois_api_password'
-term =  'wikimedia'
-mode = 'preview'
+########################
+# Fill in your details #
+########################
+username = 'Your reverse whois api username'
+password = 'Your reverse whois api password'
+term = 'wikimedia'
+
+url = 'https://www.whoisxmlapi.com/reverse-whois-api/search.php' \
+      '?term1=' + ERB::Util.url_encode(term) +
+      '&username=' + ERB::Util.url_encode(username) +
+      '&password=' + ERB::Util.url_encode(password) +
+      '&output_format='
+
+#######################
+# Use a JSON resource #
+#######################
 format = 'json'
-url = 'https://whoisxmlapi.com/reverse-whois-api/search.php?'
-url += 'mode=' + mode + '&username=' + username
-url += '&password=' + password + '&outputFormat=' + format
-url += '&term1=' + term
 
-def print_response(response)
-  response_hash = JSON.parse(response)
-  puts JSON.pretty_generate(response_hash)
-end
+# Open the resource
+buffer = Net::HTTP.get(URI.parse(url + format))
 
-response = open(url).read
-print_response(response)
+# Parse the JSON result
+result = JSON.parse(buffer)
+
+# Print out a nice informative string
+puts "JSON:\n" + result.to_yaml + "\n"

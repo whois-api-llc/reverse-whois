@@ -1,146 +1,162 @@
 ﻿using System;
-using System.Xml;
-using System.Collections.Specialized;
-using System.Net;
-using Newtonsoft.Json;
-using System.Text;
 using System.IO;
-using System.Xml;
+using System.Net;
 
-// Note that you need to make sure your Project is set to ".NET Framework 4" and NOT ".NET Framework 4 Client Profile"
-// Once that is set, make sure the following references are present under the References tree under the project:
-// Microsoft.CSharp, System, System.Web.Extensions, and System.XML
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
-namespace Sample_CSharp_API_Client
+// Note that you need to make sure your Project is set to ".NET Framework 4"
+// and NOT ".NET Framework 4 Client Profile". Once that is set, make sure the
+// following references are present under the References tree under the
+// project: Microsoft.CSharp, System, System.Web.Extensions, and System.XML.
+
+namespace ReverseApiExample
 {
-    public class ReverseApiExample
+    public static class ReverseApiExample
     {
-        protected string username;
-        protected string password;
-        public const string url =  "https://www.whoisxmlapi.com/reverse-whois-api/search.php";
-
-        static void Main(string[] args)
+        private static void Main()
         {
-            ReverseApiExample reverseWhois = new ReverseApiExample();
-
             //////////////////////////
             // Fill in your details //
             //////////////////////////
-            reverseWhois.setUsername("Your_reverse_whois_api_username");
-            reverseWhois.setPassword("Your_reverse_whois_api_password");
+            var reverseWhois = new ReverseWhoisSample
+            {
+                Username = "Your reverse whois api username",
+                Password = "Your reverse whois api password"
+            };
 
             //////////////////////////
-            //   send POST request  //
+            // Send POST request    //
             //////////////////////////
-            string responsePost = reverseWhois.sendPostReverseWhois();
-            reverseWhois.PrintResponse(responsePost);
+            var responsePost = reverseWhois.SendPostReverseWhois();
+            PrintResponse(responsePost);
 
             //////////////////////////
-            //   send GET request   //
+            // Send GET request     //
             //////////////////////////
-            string responseGet = reverseWhois.sendGetReverseWhois();
-            reverseWhois.PrintResponse(responseGet);
+            var responseGet = reverseWhois.SendGetReverseWhois();
+            PrintResponse(responseGet);
 
-            // Prevent command window from automatically closing during debugging
+            // Prevent command window from automatically closing
             Console.WriteLine("\nPress any key to continue...");
             Console.ReadKey();
         }
 
-        protected string sendPostReverseWhois()
-        {
-            /////////////////////////
-            // Use a JSON resource //
-            /////////////////////////
-
-            Console.Write("Sending request to: " + url + "\n");
-
-            var httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
-            httpWebRequest.ContentType = "application/json";
-            httpWebRequest.Method = "POST";
-
-            using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
-            {
-                string json = "{" +
-                    "\"terms\": [" +
-                        "{" +
-                            "\"section\":\"Registrant\",\"attribute\":\"name\",\"value\":\"brett\",\"matchType\":\"anywhere\",\"exclude\":\"false\"" +
-                        "}]," +
-                    "\"recordsCounter\":\"false\",\"outputFormat\":\"json\"," +
-                    "\"username\":\"" + this.getUsername() + "\"," +
-                    "\"password\":\"" + this.getPassword() + "\"," +
-                    "\"rows\":\"10\",\"searchType\": \"current\"" +
-                    "}";
-                streamWriter.Write(json);
-                streamWriter.Flush();
-                streamWriter.Close();
-            }
-
-            var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-            string res;
-            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-            {
-                res = streamReader.ReadToEnd();
-            }
-            return res;
-        }
-
-        protected string sendGetReverseWhois()
-        {
-            /////////////////////////
-            // Use a JSON resource //
-            /////////////////////////
-            string requestParams = "?term1=" + "topcoder" +  "&mode=purchase" + "&username=" + this.getUsername() + "&password=" + this.getPassword();
-            string fullUrl = url + requestParams;
-
-            Console.Write("Sending request to: " + fullUrl + "\n");
-
-            // Download JSON into a string
-            string result = new WebClient().DownloadString(fullUrl);
-                
-            // Print a nice informative string
-            try
-            {
-                return result;
-            }
-            catch (Exception e)
-            {
-                return "{\"error\":\"An unkown error has occurred!\"}";
-            }
-        }
-
-        public void setUsername(string login)
-        {
-            this.username = login;
-        }
-        public void setPassword(string pass)
-        {
-            this.password = pass;
-        }
-
-        public String getUsername()
-        {
-            return this.username;
-        }
-
-        public String getPassword()
-        {
-            return this.password;
-        }
-
-        protected void PrintResponse(string response)
+        private static void PrintResponse(string response)
         {
             dynamic responseObject = JsonConvert.DeserializeObject(response);
+
             if (responseObject != null)
             {
                 Console.Write(responseObject);
                 Console.WriteLine("--------------------------------");
                 return;
             }
-            else Console.WriteLine(response);
+
             Console.WriteLine();
         }
 
     }
 
-}
+    public class ReverseWhoisSample
+    {
+        public string Password { get; set; }
+        
+        public string Username { get; set; }
+        
+        private const string Url =
+            "https://www.whoisxmlapi.com/reverse-whois-api/search.php";
+        
+        public string SendGetReverseWhois()
+        {
+            /////////////////////////
+            // Use a JSON resource //
+            /////////////////////////
+            var requestParams =
+                "?term1=topcoder"
+                + "&mode=purchase"
+                + "&username=" + Uri.EscapeDataString(Username)
+                + "&password=" + Uri.EscapeDataString(Password);
 
+            var fullUrl = Url + requestParams;
+
+            Console.Write("Sending request to: " + fullUrl + "\n");
+
+            // Download JSON into a string
+            var result = new WebClient().DownloadString(fullUrl);
+                
+            // Print a nice informative string
+            try
+            {
+                return result;
+            }
+            catch (Exception)
+            {
+                return "{\"error\":\"An unkown error has occurred!\"}";
+            }
+        }
+        
+        public string SendPostReverseWhois()
+        {
+            /////////////////////////
+            // Use a JSON resource //
+            /////////////////////////
+
+            Console.Write("Sending request to: " + Url + "\n");
+
+            var httpWebRequest = (HttpWebRequest)WebRequest.Create(Url);
+            httpWebRequest.ContentType = "application/json";
+            httpWebRequest.Method = "POST";
+
+            using (var streamWriter =
+                new StreamWriter(httpWebRequest.GetRequestStream()))
+            {
+                var json = @"{
+                    terms: [
+                        {
+                            section: 'Registrant',
+                            attribute: 'name',
+                            value: 'n',
+                            matchType: 'EndsWith',
+                            exclude: false
+                        }
+                    ],
+                    recordsCounter: false,
+                    outputFormat: 'json',
+                    username: 'USER_NAME',
+                    password: 'USER_PASS',
+                    rows: 10,
+                    searchType: 'current'
+                }";
+
+                json = json.Replace("USER_NAME", Username)
+                           .Replace("USER_PASS", Password);
+                
+                var jsonData = JObject.Parse(json).ToString();
+
+                streamWriter.Write(jsonData);
+                streamWriter.Flush();
+                streamWriter.Close();
+            }
+
+            var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+
+            var res = "";
+
+            using (var responseStream = httpResponse.GetResponseStream())
+            {
+                if (responseStream == null || responseStream == Stream.Null)
+                {
+                    return res;
+                }
+                
+                using (var streamReader = new StreamReader(responseStream))
+                {
+                    res = streamReader.ReadToEnd();
+                }
+            }
+
+            return res;
+        }
+    }
+}

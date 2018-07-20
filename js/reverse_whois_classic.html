@@ -1,22 +1,41 @@
-<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-<script type="text/javascript">
-//     Fill in your details
-var username = "Your_reverse_whois_api_username";
-var password = "Your_reverse_whois_api_password";
-var term = "wikimedia";
-var format = "JSON";
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reverse Whois API jQuery Search Sample</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript">
 
-window.addEventListener("load", onPageLoad, false);
+        var apiUrl="https://www.whoisxmlapi.com/reverse-whois-api/search.php";
+        // Fill in your details
+        var username = "Your reverse whois api username";
+        var password = "Your reverse whois api password";
+        var term = "test test";
+        var mode = "purchase";
+        var format = "json";
+        var rows = 10;
 
-function onPageLoad() {
-    $.ajax({
-        url: "https://www.whoisxmlapi.com/reverse-whois-api/search.php",
-        dataType: "json",
-        data: {mode: "preview", term1: term, username: username,
-            password: password, outputFormat: format},
-        success: function(data) {
-            $("body").append("<pre>"+ JSON.stringify(data,"",2)+"</pre>");
-        }
-    });
-}
-</script>
+        $(function() {
+            $.ajax(
+                {
+                    url: apiUrl,
+                    dataType: "jsonp",
+                    data: {
+                        mode: mode,
+                        term1: term,
+                        username: username,
+                        password: password,
+                        output_format: format,
+                        rows: rows
+                    },
+                    success: function(data) {
+                        $("body").append(
+                            "<pre>" + JSON.stringify(data, null, 2)+"</pre>");
+                    }
+                }
+            );
+        });
+
+    </script>
+</head>
+<body></body>
+</html>
